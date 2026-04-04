@@ -347,3 +347,7 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
+
+# Configuración local de .NET (Secrets/Settings)
+appsettings.json
+appsettings.Development.json
