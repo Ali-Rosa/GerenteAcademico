@@ -531,9 +531,9 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 ## 👥 Autor
 
-**Desarrollado por**: Tu Nombre
-- GitHub: [@tu-usuario](https://github.com/tu-usuario)
-- Email: tu-email@example.com
+**Desarrollado por**: Ali Gerardo Rosa Medero
+- GitHub: [@Ali-Rosa](https://github.com/Ali-Rosa)
+- Email: aligrm@outlook.es
 
 ---
 
@@ -541,9 +541,9 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 Si encuentras algún problema o tienes preguntas:
 
-- 📧 Email: soporte@gerente-academico.com
-- 💬 Issues: [GitHub Issues](https://github.com/tu-usuario/GerenteAcademico/issues)
-- 📚 Documentación: [Wiki](https://github.com/tu-usuario/GerenteAcademico/wiki)
+- 📧 Email: aligrm@outlook.es
+- 💬 Issues: [GitHub Issues](https://github.com/Ali-Rosa/GerenteAcademico/issues)
+- 📚 Documentación: 
 
 ---
 
