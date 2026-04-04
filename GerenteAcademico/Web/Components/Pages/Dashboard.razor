@@ -1,0 +1,110 @@
+﻿@page "/{academia}/dashboard"
+@rendermode InteractiveServer
+@layout MainLayout
+@inherits DashboardBase
+
+@if (IsLoading)
+{
+    <div class="d-flex align-items-center justify-content-center" style="min-height: 400px;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="dashboard-content">
+        <!-- Welcome Section -->
+        <div class="welcome-section mb-4">
+            <div class="welcome-header">
+                <div>
+                    <h2 class="welcome-title">¡Bienvenido, @NombreUsuario!</h2>
+                    <p class="welcome-subtitle">Has iniciado sesión correctamente en <strong>@NombreAcademia</strong></p>
+                </div>
+                @if (!string.IsNullOrEmpty(LogoUrl))
+                {
+                    <img src="@LogoUrl" alt="Logo" class="welcome-logo" />
+                }
+            </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="info-cards">
+            <!-- Academia Card -->
+            <div class="info-card">
+                <div class="card-icon">📚</div>
+                <h6 class="card-title">Academia</h6>
+                <h4 class="card-value">@NombreAcademia</h4>
+                <p class="card-meta"><span class="badge">@AcadiaCodigo</span></p>
+            </div>
+
+            <!-- User Info Card -->
+            <div class="info-card">
+                <div class="card-icon">👤</div>
+                <h6 class="card-title">Usuario</h6>
+                <h4 class="card-value">@NombreUsuario</h4>
+                <p class="card-meta"><span class="badge">@RolUsuario</span></p>
+            </div>
+
+            <!-- Session Status Card -->
+            <div class="info-card">
+                <div class="card-icon">🔒</div>
+                <h6 class="card-title">Estado de Sesión</h6>
+                <div class="session-status">
+                    <span class="status-badge status-active">● Activo</span>
+                    <p class="status-text">JWT + Cookie protegida</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Details -->
+        <div class="session-details">
+            <div class="details-header">
+                <h5>📋 Detalles de Sesión</h5>
+            </div>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Código Academia</span>
+                    <span class="detail-value"><span class="badge">@AcadiaCodigo</span></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Nombre Academia</span>
+                    <span class="detail-value">@NombreAcademia</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Usuario</span>
+                    <span class="detail-value">@NombreUsuario</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Rol</span>
+                    <span class="detail-value"><span class="badge badge-success">@RolUsuario</span></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Autenticación</span>
+                    <span class="detail-value"><span class="badge badge-warning">JWT</span></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Seguridad</span>
+                    <span class="detail-value">
+                        <span class="badge badge-success">✓ HTTPS</span>
+                        <span class="badge badge-success">✓ HttpOnly</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Message -->
+        <div class="info-message">
+            <span class="info-icon">ℹ️</span>
+            <p>Tu sesión se mantiene activa en el servidor. Puedes navegar por la aplicación sin ser redirigido a login mientras tu sesión sea válida.</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="btn-action btn-primary" @onclick="async () => await DoLogout()">
+                <span class="action-icon">🚪</span>
+                <span class="action-text">Cerrar Sesión</span>
+            </button>
+        </div>
+    </div>
+}

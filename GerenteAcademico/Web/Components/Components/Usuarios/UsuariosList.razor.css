@@ -1,0 +1,246 @@
+:root {
+    --primary-color: #3366cc;
+    --primary-dark: #2852a0;
+    --light-color: #f3f4f6;
+    --border-color: #e5e7eb;
+    --text-muted: #6b7280;
+    --dark-color: #1f2937;
+    --danger-color: #ef4444;
+}
+
+.usuarios-list {
+    padding: 0;
+}
+
+.list-header {
+    padding: 16px 24px;
+    background: var(--light-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-content {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-content h5 {
+    color: var(--dark-color);
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.search-box {
+    flex: 1;
+    max-width: 300px;
+}
+
+.search-input {
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(51, 102, 204, 0.1);
+    outline: none;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    border: none;
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: var(--light-color);
+    border-bottom: 2px solid var(--border-color);
+    color: var(--dark-color);
+    font-weight: 700;
+    padding: 12px 16px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    color: var(--dark-color);
+    font-size: 14px;
+}
+
+.table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: var(--light-color);
+}
+
+.user-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), #667eea);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.fw-600 {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.bg-light {
+    background-color: var(--light-color) !important;
+    color: var(--dark-color) !important;
+}
+
+.bg-success {
+    background-color: #dcfce7 !important;
+    color: #065f46 !important;
+}
+
+.bg-secondary {
+    background-color: #e5e7eb !important;
+    color: #374151 !important;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-action {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-edit:hover {
+    background-color: #dbeafe;
+    transform: scale(1.1);
+}
+
+.btn-delete:hover {
+    background-color: #fee2e2;
+    transform: scale(1.1);
+}
+
+.btn-action:active {
+    transform: scale(0.95);
+}
+
+.list-footer {
+    padding: 12px 24px;
+    background: var(--light-color);
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+}
+
+.list-footer small {
+    color: var(--text-muted);
+}
+
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.6;
+}
+
+.empty-state h5 {
+    color: var(--dark-color);
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-box {
+        width: 100%;
+        max-width: none;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 8px 12px;
+    }
+
+    .user-name-cell {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 10px;
+    }
+
+    .actions-cell {
+        justify-content: flex-start;
+    }
+}

@@ -1,0 +1,237 @@
+@page "/{academia}/configuraciones/roles"
+@rendermode InteractiveServer
+@layout MainLayout
+@using GerenteAcademico.Web.Components.Components.Roles
+@using GerenteAcademico.Web.Services
+@using GerenteAcademico.Application.Dtos.Roles
+@inject NavigationManager Navigation
+@inject AcademiaState AcademiaState
+@inject HttpClient Http
+@inject ILogger<RolesPage> Logger
+@inject IJSRuntime JSRuntime
+
+<div class="roles-container">
+    @if (IsLoading)
+    {
+        <div class="d-flex align-items-center justify-content-center" style="min-height: 400px;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Header -->
+        <div class="page-header mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="page-title">🔐 Gestión de Roles</h2>
+                    <p class="page-subtitle">Administra los roles de la academia</p>
+                </div>
+                <button class="btn btn-primary btn-lg" @onclick="OpenCreateForm">
+                    <span class="me-2">➕</span> Nuevo Rol
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        @if (!string.IsNullOrEmpty(SuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <span>✅</span> @SuccessMessage
+                <button type="button" class="btn-close" @onclick="ClearMessages"></button>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span>❌</span> @ErrorMessage
+                <button type="button" class="btn-close" @onclick="ClearMessages"></button>
+            </div>
+        }
+
+        <!-- Form Section (shown when creating/editing) -->
+        @if (ShowForm)
+        {
+            <div class="form-section mb-4">
+                <RolForm 
+                    Academia="@AcademiaState.Codigo"
+                    RolId="@EditingRolId"
+                    OnSaved="@OnFormSaved"
+                    OnCancelled="@OnFormCancelled"
+                />
+            </div>
+        }
+
+        <!-- Roles List Section -->
+        @if (!ShowForm)
+        {
+            <div class="list-section">
+                <RolesList 
+                    Academia="@AcademiaState.Codigo"
+                    Roles="@Roles"
+                    IsLoading="@IsLoadingRoles"
+                    OnEdit="@OpenEditForm"
+                    OnDelete="@OnDeleteRol"
+                    OnRefresh="@LoadRoles"
+                />
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? academia { get; set; }
+
+    private List<RolDto> Roles = new();
+    private bool IsLoading = true;
+    private bool IsLoadingRoles = false;
+    private bool ShowForm = false;
+    private int? EditingRolId = null;
+    private string SuccessMessage = string.Empty;
+    private string ErrorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRoles();
+    }
+
+    private async Task LoadRoles()
+    {
+        IsLoadingRoles = true;
+        try
+        {
+            var response = await Http.GetAsync($"/{AcademiaState.Codigo}/api/roles");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                Roles = System.Text.Json.JsonSerializer.Deserialize<List<RolDto>>(
+                    json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                ) ?? new();
+                IsLoading = false;
+            }
+            else
+            {
+                ErrorMessage = $"Error al cargar los roles: {response.StatusCode}";
+                Logger.LogError($"Error: {response.StatusCode}");
+                IsLoading = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error al cargar los roles: {ex.Message}";
+            Logger.LogError(ex, "Error loading roles");
+            IsLoading = false;
+        }
+        finally
+        {
+            IsLoadingRoles = false;
+        }
+    }
+
+    private void OpenCreateForm()
+    {
+        EditingRolId = null;
+        ShowForm = true;
+        ClearMessages();
+    }
+
+    private void OpenEditForm(int rolId)
+    {
+        EditingRolId = rolId;
+        ShowForm = true;
+        ClearMessages();
+    }
+
+    private async Task OnFormSaved()
+    {
+        ShowForm = false;
+        SuccessMessage = EditingRolId == null 
+            ? "Rol creado exitosamente" 
+            : "Rol actualizado exitosamente";
+        await LoadRoles();
+    }
+
+    private void OnFormCancelled()
+    {
+        ShowForm = false;
+        ClearMessages();
+    }
+
+    private async Task OnDeleteRol(int rolId)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Deseas eliminar este rol?"))
+        {
+            try
+            {
+                var response = await Http.DeleteAsync($"/{AcademiaState.Codigo}/api/roles/{rolId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    SuccessMessage = "Rol eliminado exitosamente";
+                    await LoadRoles();
+                }
+                else
+                {
+                    ErrorMessage = "Error al eliminar el rol";
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error al eliminar el rol: {ex.Message}";
+                Logger.LogError(ex, "Error deleting rol");
+            }
+        }
+    }
+
+    private void ClearMessages()
+    {
+        SuccessMessage = string.Empty;
+        ErrorMessage = string.Empty;
+    }
+}
+
+<style>
+    .roles-container {
+        padding: 20px;
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    .page-title {
+        color: #1f2937;
+        font-weight: 700;
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .form-section {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .list-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .alert {
+        border-radius: 8px;
+        border: 1px solid transparent;
+        margin-bottom: 20px;
+    }
+</style>

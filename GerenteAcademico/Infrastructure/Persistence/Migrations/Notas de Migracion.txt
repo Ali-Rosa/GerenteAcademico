@@ -1,0 +1,8 @@
+para migrar y que la carpeta de migración no se genere por defecto:
+
+Add-Migration NombreMigracion -Context ConfigDbContext -OutputDir Infrastructure/Persistence/Migrations
+
+
+con este ejecuto la migracion 
+
+Update-Database -Context ConfigDbContext

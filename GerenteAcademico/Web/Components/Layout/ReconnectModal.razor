@@ -1,0 +1,272 @@
+﻿<script type="module" src="@Assets["Components/Layout/ReconnectModal.razor.js"]"></script>
+
+<dialog id="components-reconnect-modal" data-nosnippet>
+    <div class="reconnect-overlay">
+        <div class="reconnect-container">
+            <!-- Header -->
+            <div class="reconnect-header">
+                <div class="reconnect-icon">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="reconnect-content">
+                <!-- First attempt message -->
+                <div class="components-reconnect-first-attempt-visible">
+                    <h3>Reconectando...</h3>
+                    <p>Estamos intentando restaurar tu conexión con el servidor.</p>
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+
+                <!-- Repeated attempt message -->
+                <div class="components-reconnect-repeated-attempt-visible">
+                    <h3>Intentando nuevamente</h3>
+                    <p>La reconexión falló, intentando de nuevo en <span id="components-seconds-to-next-attempt" class="countdown">5</span> segundos...</p>
+                    <div class="retry-info">
+                        <p class="small-text">Por favor mantén la página abierta.</p>
+                    </div>
+                </div>
+
+                <!-- Failed message -->
+                <div class="components-reconnect-failed-visible">
+                    <h3>⚠️ Conexión Perdida</h3>
+                    <p>No pudimos restaurar la conexión con el servidor.</p>
+                    <p class="small-text">Por favor, intenta reconectarte o recarga la página.</p>
+                </div>
+
+                <!-- Pause message -->
+                <div class="components-pause-visible">
+                    <h3>⏸️ Sesión en Pausa</h3>
+                    <p>El servidor ha pausado tu sesión por mantenimiento.</p>
+                    <p class="small-text">Cuando se complete el mantenimiento, podrás reanudar tu sesión.</p>
+                </div>
+
+                <!-- Resume failed message -->
+                <div class="components-resume-failed-visible">
+                    <h3>❌ Error al Reanudar</h3>
+                    <p>No pudimos reanudar tu sesión.</p>
+                    <p class="small-text">Por favor, intenta reanudar o recarga la página.</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="reconnect-actions">
+                <button id="components-reconnect-button" class="btn-action btn-retry components-reconnect-failed-visible">
+                    <span class="icon">🔄</span> Reintentar
+                </button>
+
+                <button id="components-resume-button" class="btn-action btn-resume components-pause-visible components-resume-failed-visible">
+                    <span class="icon">▶️</span> Reanudar Sesión
+                </button>
+            </div>
+
+            <!-- Footer -->
+            <div class="reconnect-footer">
+                <p class="footer-tip">💡 Consejo: Mantén esta ventana abierta mientras se reconecta.</p>
+            </div>
+        </div>
+    </div>
+</dialog>
+
+<style>
+    #components-reconnect-modal {
+        position: fixed;
+        border: none;
+        padding: 0;
+        margin: 0;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(2px);
+    }
+
+    #components-reconnect-modal[open] {
+        display: flex;
+    }
+
+    .reconnect-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    #components-reconnect-modal[open] .reconnect-overlay {
+        pointer-events: auto;
+    }
+
+    .reconnect-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        max-width: 420px;
+        width: 90%;
+        text-align: center;
+    }
+
+    .reconnect-header {
+        margin-bottom: 24px;
+    }
+
+    .reconnect-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #3366cc, #667eea);
+        border-radius: 50%;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .reconnect-content {
+        margin-bottom: 28px;
+    }
+
+    .reconnect-content h3 {
+        color: #1f2937;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 0 8px;
+    }
+
+    .reconnect-content p {
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 8px 0;
+    }
+
+    .reconnect-content .small-text {
+        color: #9ca3af;
+        font-size: 12px;
+        font-style: italic;
+    }
+
+    .loading-dots {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 16px;
+    }
+
+    .loading-dots span {
+        width: 8px;
+        height: 8px;
+        background-color: #3366cc;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite;
+    }
+
+    .loading-dots span:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+
+    .loading-dots span:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+
+    .countdown {
+        font-weight: 700;
+        color: #ef4444;
+        font-size: 18px;
+    }
+
+    .retry-info {
+        background: #f0fdf4;
+        border: 1px solid #dcfce7;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 16px;
+    }
+
+    .reconnect-actions {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-retry {
+        background: linear-gradient(135deg, #3366cc, #667eea);
+        color: white;
+    }
+
+    .btn-retry:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(51, 102, 204, 0.3);
+    }
+
+    .btn-retry:active {
+        transform: translateY(0);
+    }
+
+    .btn-resume {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-resume:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .reconnect-footer {
+        border-top: 1px solid #e5e7eb;
+        padding-top: 16px;
+    }
+
+    .footer-tip {
+        color: #9ca3af;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    /* Hidden state styling */
+    .components-reconnect-first-attempt-visible,
+    .components-reconnect-repeated-attempt-visible,
+    .components-reconnect-failed-visible,
+    .components-pause-visible,
+    .components-resume-failed-visible,
+    .btn-retry,
+    .btn-resume {
+        display: none;
+    }
+</style>

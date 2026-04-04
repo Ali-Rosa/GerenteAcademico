@@ -1,0 +1,355 @@
+﻿@inherits LayoutComponentBase
+@using GerenteAcademico.Web.Services
+@inject AcademiaState AcademiaState
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@inject ILogger<MainLayout> Logger
+
+<div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <NavMenu />
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-content">
+                <button class="toggle-sidebar" @onclick="ToggleSidebar" title="Alternar menú">
+                    <span class="menu-icon">☰</span>
+                </button>
+
+                <div class="header-brand">
+                    <h6 class="mb-0">@AcademiaState.Nombre</h6>
+                </div>
+
+                <div class="header-actions">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            @if (!string.IsNullOrEmpty(AcademiaState.FotoUrl))
+                            {
+                                <img src="@AcademiaState.FotoUrl" alt="Avatar" />
+                            }
+                            else
+                            {
+                                <span class="avatar-placeholder">@GetInitials(AcademiaState.NombreUsuario)</span>
+                            }
+                        </div>
+                        <div class="user-details">
+                            <p class="user-name">@AcademiaState.NombreUsuario</p>
+                            <p class="user-role">@AcademiaState.RolUsuario</p>
+                        </div>
+                    </div>
+
+                    <button class="btn-logout" @onclick="HandleLogout" title="Cerrar sesión">
+                        <span>🚪</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                @Body
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p class="footer-text">© 2024 Sistema de Gestión Académica. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+</div>
+
+<!-- Reconnect Modal -->
+<ReconnectModal />
+
+<!-- Error UI -->
+<div id="blazor-error-ui" data-nosnippet class="blazor-error-ui">
+    <div class="error-content">
+        <h5>⚠️ Error Inesperado</h5>
+        <p>Ha ocurrido un error en la aplicación.</p>
+        <button class="btn btn-primary btn-sm" onclick="location.reload()">Recargar Página</button>
+        <button class="btn btn-secondary btn-sm dismiss-btn" onclick="document.getElementById('blazor-error-ui').style.display='none'">Descartar</button>
+    </div>
+</div>
+
+@code {
+    private bool sidebarOpen = true;
+
+    private void ToggleSidebar()
+    {
+        sidebarOpen = !sidebarOpen;
+        // El sidebar se controla a través del estado de Blazor
+        StateHasChanged();
+    }
+
+    private async Task HandleLogout()
+    {
+        try
+        {
+            // Llamar al endpoint de logout
+            var response = await Http.PostAsync("api/auth/logout", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Logout exitoso");
+            }
+            else
+            {
+                Logger.LogWarning("Logout devolvió status: {Status}", response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error durante logout en MainLayout");
+        }
+        finally
+        {
+            // Navegar al login del código de academia actual
+            var academiaCodigo = AcademiaState.Codigo;
+            if (!string.IsNullOrEmpty(academiaCodigo))
+            {
+                Navigation.NavigateTo($"/{academiaCodigo}/login", true);
+            }
+            else
+            {
+                Navigation.NavigateTo("/login", true);
+            }
+        }
+    }
+
+    private string GetInitials(string fullName)
+    {
+        if (string.IsNullOrEmpty(fullName)) return "U";
+        var parts = fullName.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+        return (parts.Length > 1 
+            ? $"{parts[0][0]}{parts[1][0]}" 
+            : $"{parts[0][0]}").ToUpper();
+    }
+}
+
+<style>
+    :root {
+        --primary-color: #3366cc;
+        --primary-dark: #2852a0;
+        --secondary-color: #667eea;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+        --info-color: #06b6d4;
+        --dark-color: #1f2937;
+        --light-color: #f3f4f6;
+        --border-color: #e5e7eb;
+        --text-muted: #6b7280;
+        --sidebar-width: 260px;
+        --header-height: 70px;
+        --transition: all 0.3s ease;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .app-layout {
+        display: flex;
+        height: 100vh;
+        background-color: #f9fafb;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .sidebar {
+        width: var(--sidebar-width);
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        transition: var(--transition);
+        position: relative;
+        z-index: 100;
+        overflow-y: auto;
+    }
+
+    .sidebar.closed {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+
+    .main-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .top-header {
+        height: var(--header-height);
+        background: white;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        padding: 0 20px;
+        gap: 20px;
+    }
+
+    .toggle-sidebar {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px 12px;
+        font-size: 24px;
+        color: var(--primary-color);
+        transition: var(--transition);
+    }
+
+    .toggle-sidebar:hover {
+        color: var(--primary-dark);
+    }
+
+    .header-brand h6 {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-left: auto;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .user-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin: 0;
+    }
+
+    .user-role {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .btn-logout {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 8px;
+        transition: var(--transition);
+        color: var(--danger-color);
+    }
+
+    .btn-logout:hover {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+
+    .main-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px 20px;
+    }
+
+    .content-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .app-footer {
+        background: white;
+        border-top: 1px solid var(--border-color);
+        padding: 15px 20px;
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .footer-text {
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .blazor-error-ui {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: white;
+        border: 2px solid var(--danger-color);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 999;
+        max-width: 400px;
+    }
+
+    .error-content h5 {
+        color: var(--danger-color);
+        margin-bottom: 10px;
+    }
+
+    .error-content p {
+        color: var(--text-muted);
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    .error-content button {
+        margin-right: 10px;
+    }
+</style>

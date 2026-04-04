@@ -1,0 +1,333 @@
+﻿@using GerenteAcademico.Web.Services
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject AcademiaState AcademiaState
+
+<div class="navbar-header">
+    <div class="navbar-brand-section">
+        <div class="brand-icon">📚</div>
+        <div class="brand-text">
+            <h5>Academia</h5>
+            <p>Gestión</p>
+        </div>
+    </div>
+</div>
+
+<nav class="nav-menu">
+    <!-- Dashboard Section -->
+    <div class="nav-section">
+        <div class="nav-section-title">Principal</div>
+        <NavLink class="nav-item" href="@GetDashboardUrl()" Match="NavLinkMatch.All">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Dashboard</span>
+        </NavLink>
+    </div>
+
+    <!-- Academic Management -->
+    <div class="nav-section">
+        <div class="nav-section-title">Gestión Académica</div>
+        <NavLink class="nav-item" href="@($"{GetAcademicUrl()}/estudiantes")">
+            <span class="nav-icon">👨‍🎓</span>
+            <span class="nav-label">Estudiantes</span>
+        </NavLink>
+        <NavLink class="nav-item" href="@($"{GetAcademicUrl()}/cursos")">
+            <span class="nav-icon">📚</span>
+            <span class="nav-label">Cursos</span>
+        </NavLink>
+        <NavLink class="nav-item" href="@($"{GetAcademicUrl()}/calificaciones")">
+            <span class="nav-icon">📈</span>
+            <span class="nav-label">Calificaciones</span>
+        </NavLink>
+        <NavLink class="nav-item" href="@($"{GetAcademicUrl()}/asistencia")">
+            <span class="nav-icon">✅</span>
+            <span class="nav-label">Asistencia</span>
+        </NavLink>
+    </div>
+
+    <!-- Administration -->
+    <div class="nav-section">
+        <div class="nav-section-title">Administración</div>
+
+        <div class="nav-item-group">
+            <!-- Botón Configuraciones con @onclick directo -->
+            <button type="button" 
+                    class="nav-item nav-collapsible @(IsConfiguracionesExpanded ? "expanded" : "")" 
+                    @onclick="ToggleConfiguraciones"
+                    title="Expandir/Contraer Configuraciones"
+                    style="border: none; background: none; width: 100%; text-align: left;">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Configuraciones</span>
+                <span class="nav-chevron">▼</span>
+            </button>
+
+            <!-- Submenú que se muestra/oculta -->
+            @if (IsConfiguracionesExpanded)
+            {
+                <div class="nav-submenu">
+                    <NavLink class="nav-subitem" href="@($"{GetAcademicUrl()}/configuraciones/usuarios")">
+                        <span class="sub-icon">👥</span>
+                        <span class="sub-label">Usuarios</span>
+                    </NavLink>
+                    <NavLink class="nav-subitem" href="@($"{GetAcademicUrl()}/configuraciones/roles")">
+                        <span class="sub-icon">🔐</span>
+                        <span class="sub-label">Roles</span>
+                    </NavLink>
+                    <NavLink class="nav-subitem" href="@($"{GetAcademicUrl()}/configuraciones/parametros")">
+                        <span class="sub-icon">🔧</span>
+                        <span class="sub-label">Parámetros</span>
+                    </NavLink>
+                </div>
+            }
+        </div>
+
+        <NavLink class="nav-item" href="@($"{GetAcademicUrl()}/reportes")">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Reportes</span>
+        </NavLink>
+    </div>
+</nav>
+
+<div class="nav-footer">
+    <div class="academy-info">
+        <div class="info-item">
+            <span class="info-label">Academia:</span>
+            <span class="info-value">@GetAcademyCode()</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Propiedad simple para controlar si Configuraciones está expandido
+    private bool IsConfiguracionesExpanded = false;
+
+    protected override void OnInitialized()
+    {
+        // Expandir "Configuraciones" por defecto si estamos en esa sección
+        if (Navigation.Uri.Contains("configuraciones"))
+        {
+            IsConfiguracionesExpanded = true;
+        }
+    }
+
+    // Método simple para toggle
+    private void ToggleConfiguraciones()
+    {
+        IsConfiguracionesExpanded = !IsConfiguracionesExpanded;
+        // No necesita StateHasChanged porque Blazor lo hace automáticamente con propiedades
+    }
+
+    private string GetDashboardUrl() => $"/{AcademiaState.Codigo}/dashboard";
+    private string GetAcademicUrl() => $"/{AcademiaState.Codigo}";
+    private string GetAcademyCode() => AcademiaState.Codigo ?? "N/A";
+}
+
+<style>
+    :root {
+        --primary-color: #3366cc;
+        --primary-dark: #2852a0;
+        --secondary-color: #667eea;
+        --text-light: #e5e7eb;
+        --text-lighter: #f3f4f6;
+        --hover-bg: rgba(255, 255, 255, 0.1);
+        --active-bg: rgba(255, 255, 255, 0.15);
+        --transition: all 0.3s ease;
+    }
+
+    .navbar-header {
+        padding: 24px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05));
+    }
+
+    .navbar-brand-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .navbar-brand-section:hover {
+        opacity: 0.9;
+    }
+
+    .brand-icon {
+        font-size: 28px;
+    }
+
+    .brand-text h5 {
+        color: white;
+        font-weight: 700;
+        margin: 0;
+        font-size: 18px;
+        line-height: 1;
+    }
+
+    .brand-text p {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+
+    .nav-menu {
+        padding: 16px 0;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .nav-section {
+        margin-bottom: 8px;
+    }
+
+    .nav-section-title {
+        padding: 12px 16px;
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .nav-item,
+    .nav-collapsible {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        transition: var(--transition);
+        cursor: pointer;
+        border: none;
+        background: none;
+        width: 100%;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .nav-item:hover,
+    .nav-collapsible:hover {
+        background-color: var(--hover-bg);
+        color: white;
+    }
+
+    .nav-item.active {
+        background-color: var(--active-bg);
+        color: white;
+        border-left: 3px solid #10b981;
+        padding-left: 13px;
+    }
+
+    .nav-icon {
+        font-size: 18px;
+        min-width: 20px;
+    }
+
+    .nav-label {
+        flex: 1;
+        text-align: left;
+    }
+
+    .nav-chevron {
+        font-size: 12px;
+        transition: transform 0.3s ease;
+        opacity: 0.6;
+    }
+
+    .nav-collapsible.expanded .nav-chevron {
+        transform: rotate(180deg);
+    }
+
+    .nav-item-group {
+        position: relative;
+    }
+
+    .nav-submenu {
+        max-height: 500px;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-subitem {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px 10px 44px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 13px;
+    }
+
+    .nav-subitem:hover {
+        background-color: var(--hover-bg);
+        color: white;
+    }
+
+    .nav-subitem.active {
+        color: white;
+        background-color: var(--active-bg);
+        border-left: 3px solid #10b981;
+        padding-left: 41px;
+    }
+
+    .sub-icon {
+        font-size: 16px;
+        min-width: 16px;
+    }
+
+    .sub-label {
+        flex: 1;
+    }
+
+    .nav-footer {
+        padding: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .academy-info {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 12px;
+    }
+
+    .info-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 600;
+    }
+
+    .info-value {
+        color: white;
+        font-weight: 700;
+    }
+
+    /* Scrollbar styling */
+    .nav-menu::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .nav-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-menu::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+
+    .nav-menu::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+</style>
+

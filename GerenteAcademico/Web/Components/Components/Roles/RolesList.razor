@@ -1,0 +1,212 @@
+@using GerenteAcademico.Application.Dtos.Roles
+
+<div class="roles-list">
+    <div class="list-header mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📋 Roles Registrados</h5>
+            <button class="btn btn-sm btn-outline-primary" @onclick="OnRefresh">
+                @if (IsLoading)
+                {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                }
+                else
+                {
+                    <span>🔄</span>
+                }
+            </button>
+        </div>
+    </div>
+
+    @if (Roles == null || Roles.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">🔐</div>
+            <p class="empty-title">No hay roles registrados</p>
+            <p class="empty-subtitle">Crea el primer rol para comenzar</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Nivel</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rol in Roles)
+                    {
+                        <tr>
+                            <td>
+                                <span class="badge bg-secondary">@rol.Id</span>
+                            </td>
+                            <td>
+                                <strong>@rol.Nombre</strong>
+                            </td>
+                            <td>
+                                <span class="text-muted">@(string.IsNullOrEmpty(rol.Descripcion) ? "—" : rol.Descripcion)</span>
+                            </td>
+                            <td>
+                                @if (rol.Activo)
+                                {
+                                    <span class="badge bg-success">✓ Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">✗ Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-primary" @onclick="async () => await OnEdit.InvokeAsync(rol.Id)" title="Editar">
+                                        ✏️
+                                    </button>
+                                    <button class="btn btn-outline-danger" @onclick="async () => await OnDelete.InvokeAsync(rol.Id)" title="Eliminar">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Academia { get; set; } = default!;
+
+    [Parameter]
+    public List<RolDto> Roles { get; set; } = new();
+
+    [Parameter]
+    public bool IsLoading { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnDelete { get; set; }
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+}
+
+<style>
+    .roles-list {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .list-header {
+        padding: 16px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .list-header h5 {
+        color: #1f2937;
+        font-weight: 600;
+    }
+
+    .btn-outline-primary {
+        color: #3366cc;
+        border-color: #3366cc;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #3366cc;
+        color: white;
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #6b7280;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    .empty-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+
+    .empty-subtitle {
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead {
+        background-color: #f3f4f6;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .table thead th {
+        color: #374151;
+        font-weight: 600;
+        padding: 12px 16px;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f9fafb;
+    }
+
+    .table td {
+        padding: 12px 16px;
+        vertical-align: middle;
+        color: #374151;
+    }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .text-muted {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .btn-group-sm > .btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .btn-outline-danger {
+        color: #ef4444;
+        border-color: #ef4444;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #ef4444;
+        color: white;
+    }
+</style>

@@ -1,0 +1,301 @@
+@using GerenteAcademico.Application.Dtos.Usuarios
+@inject ILogger<UsuariosList> Logger
+
+<div class="usuarios-list">
+    @if (IsLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else if (Usuarios == null || Usuarios.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h5>No hay usuarios</h5>
+            <p>No hay usuarios registrados en la academia. Crea uno para comenzar.</p>
+        </div>
+    }
+    else
+    {
+        <!-- Table Header -->
+        <div class="list-header">
+            <div class="header-content">
+                <h5 class="mb-0">@Usuarios.Count Usuario(s)</h5>
+                <div class="search-box">
+                    <input type="text" class="form-control search-input" 
+                           placeholder="🔍 Buscar usuarios..." 
+                           @bind="SearchTerm" 
+                           @bind:event="oninput" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Documento</th>
+                        <th>Teléfono</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var usuario in FilteredUsuarios)
+                    {
+                        <tr>
+                            <td>
+                                <div class="user-name-cell">
+                                    <div class="user-avatar">@GetInitials(usuario.Nombre, usuario.Apellido)</div>
+                                    <div>
+                                        <div class="fw-600">@usuario.Nombre @usuario.Apellido</div>
+                                        <div class="text-muted small">@usuario.Username</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@usuario.Email</td>
+                            <td>
+                                <span class="badge bg-light text-dark">@usuario.Documentacion</span>
+                            </td>
+                            <td>@usuario.Telefono</td>
+                            <td>
+                                <span class="badge" style="@GetRoleBadgeStyle()">
+                                    @(usuario.RolNombre ?? "N/A")
+                                </span>
+                            </td>
+                            <td>
+                                @if (usuario.Activo)
+                                {
+                                    <span class="badge bg-success">✓ Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">✗ Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="btn-action btn-edit" 
+                                            title="Editar" 
+                                            @onclick="@(() => OnEdit.InvokeAsync(usuario.Id))">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-action btn-delete" 
+                                            title="Eliminar" 
+                                            @onclick="@(() => OnDelete.InvokeAsync(usuario.Id))">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Info -->
+        @if (FilteredUsuarios.Count > 0)
+        {
+            <div class="list-footer">
+                <small class="text-muted">
+                    Mostrando @FilteredUsuarios.Count de @Usuarios.Count usuario(s)
+                </small>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Academia { get; set; } = default!;
+
+    [Parameter]
+    public List<UsuarioDto>? Usuarios { get; set; }
+
+    [Parameter]
+    public bool IsLoading { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnDelete { get; set; }
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private string SearchTerm = string.Empty;
+
+    private List<UsuarioDto> FilteredUsuarios
+    {
+        get
+        {
+            if (Usuarios == null || string.IsNullOrWhiteSpace(SearchTerm))
+                return Usuarios ?? new();
+
+            var term = SearchTerm.ToLower();
+            return Usuarios.Where(u =>
+                (u.Nombre?.ToLower().Contains(term) ?? false) ||
+                (u.Apellido?.ToLower().Contains(term) ?? false) ||
+                (u.Username?.ToLower().Contains(term) ?? false) ||
+                (u.Email?.ToLower().Contains(term) ?? false) ||
+                (u.Documentacion?.ToLower().Contains(term) ?? false)
+            ).ToList();
+        }
+    }
+
+    private string GetInitials(string? nombre, string? apellido)
+    {
+        var first = nombre?.FirstOrDefault().ToString().ToUpper() ?? "U";
+        var last = apellido?.FirstOrDefault().ToString().ToUpper() ?? "";
+        return (first + last).Substring(0, Math.Min(2, (first + last).Length));
+    }
+
+    private string GetRoleBadgeStyle()
+    {
+        return "background-color: #3366cc; color: white;";
+    }
+}
+
+<style>
+    .usuarios-list {
+        padding: 0;
+    }
+
+    .list-header {
+        padding: 16px 24px;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-content {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .search-box {
+        width: 300px;
+    }
+
+    .search-input {
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+    }
+
+    .search-input:focus {
+        border-color: #3366cc;
+        box-shadow: 0 0 0 3px rgba(51, 102, 204, 0.1);
+    }
+
+    .table {
+        border: none;
+    }
+
+    .table thead th {
+        background: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+        color: #374151;
+        font-weight: 700;
+        padding: 12px 16px;
+    }
+
+    .table tbody td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f9fafb;
+    }
+
+    .user-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3366cc, #667eea);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .fw-600 {
+        font-weight: 600;
+    }
+
+    .badge {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .actions-cell {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-edit:hover {
+        background: #f3f4f6;
+        transform: scale(1.1);
+    }
+
+    .btn-delete:hover {
+        background: #fee2e2;
+        transform: scale(1.1);
+    }
+
+    .list-footer {
+        padding: 12px 24px;
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+        text-align: right;
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #9ca3af;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    .empty-state h5 {
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+</style>
